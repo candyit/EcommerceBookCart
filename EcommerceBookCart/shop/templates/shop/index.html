@@ -1,0 +1,201 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Cart{% endblock %}
+{% block css %}
+.col-md-3{
+display: inline-block;
+margin-left:-4px;
+}
+.col-md-3 img{
+max-width: 170px;
+height: 200px;
+}
+
+body .carousel-indicators li{
+background-color: red;
+}
+body .carousel-indicators{
+  bottom: -40px ;
+}
+
+body .carousel-control-prev-icon,
+body .carousel-control-next-icon{
+background-color: blue;
+}
+.carousel-control-prev-icon{
+margin-right: auto;
+}
+.carousel-control-next-icon{
+margin-left: auto;
+}
+.carousel-indicators .active{
+background-color: blue;
+}
+.carousel-control-prev,
+.carousel-control-next{
+top: auto;
+bottom: auto;
+padding-top: 222px;
+}
+body .no-padding{
+padding-left:0,
+padding-right:0,
+}
+{% endblock %}
+{% block body %}
+{% load static%}
+<div class="container-fluid">
+  <!-- Slideshow start here -->
+  {% for product_details,range,nSlide in allProds %}
+  <h5 class="my-4">Flash Sale On {{product_details.0.category}} - Recommended Items</h5>
+  <div class="row">
+    <div id="demo{{forloop.counter}}" class="col carousel slide my-3" data-ride="carousel">
+      <ul class="carousel-indicators">
+        <li data-target="#demo{{forloop.counter}}" data-slide-to="0" class="active"></li>
+        {% for i in range %}
+        <li data-target="#demo{{forloop.parentloop.counter}}" data-slide-to="{{i}}"></li>
+        {% endfor %}
+      </ul>
+
+      <div class="container-fluid carousel-inner no-padding">
+        <div class="carousel-item active">
+          {% for i in product_details %}
+          <div class="col-xs-12 col-sm-12 col-md-3">
+            <div class="card align-items-center" style="width: 18rem;">
+              <img class="card-img-top my-2" src="/media/{{i.image}}" alt="Card image cap">
+              <div class="card-body">
+                <h6 class="card-title" id="namepr{{i.id}}">{{i.product_name|slice:"0:23"}}...</h6>
+                <p class="card-text">{{i.desc |slice:"0:23"}} ...</p>
+                <h6 class="card-title" >MRP:<span id="pricepr{{i.id}}">{{i.price}}</span> /-</h6>
+                <span id="divpr{{i.id}}" class="divpr">
+                  <button href="#" id="pr{{i.id}}" class="btn btn-primary cart">Add to cart</button>
+                </span>
+                <a href="/shop/product/{{i.id}}"><button id="qv{{.id}}" class="btn btn-primary cart">Quick
+                    View</button></a>
+              </div>
+            </div>
+          </div>
+          {% if forloop.counter|add:0|divisibleby:4 and forloop.counter > 0 and not forloop.last %}
+        </div>
+        <div class="carousel-item">
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <!-- left and right controles for the slide -->
+    <a class="carousel-control-prev" href="#demo{{forloop.counter}}" data-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </a>
+    <a class="carousel-control-next" href="#demo{{forloop.counter}}" data-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block js %}
+<script>
+
+  // agar cart m kuch nhi hai to ek new cart banao or agar cart m kuch hai to usko cart(variable) m store kro
+  if (localStorage.getItem('cart') == null) {
+    var cart = {};
+  } else {
+    cart = JSON.parse(localStorage.getItem('cart'))
+    updateCart(cart)
+  }
+
+  // If the add to cart button is clicked , add/increment the item.
+  //$('.cart').click(function () {
+  $('.divpr').on('click','button.cart',function(){
+    var idstr = this.id.toString();
+    if (cart[idstr] != undefined) {
+      qty = cart[idstr][0] + 1;
+      //name = "My item";
+      //cart[idstr] += 1;
+      //cart[idstr] = [qty,name];
+    } else {
+      qty =  1;
+      name = document.getElementById('name'+idstr).innerHTML;
+      price = document.getElementById('price'+idstr).innerHTML;
+      //cart[idstr] = 1;
+      cart[idstr] = [qty,name,parseInt(price)]
+    }
+    updateCart(cart);
+
+  });
+
+  //Add popover to cart
+  $('#popcart').popover()
+
+  updatePopover(cart);
+  function updatePopover(cart) {
+    console.log("We are inside pop over");
+    var popStr = "";
+    popStr = popStr + `<h5>Cart for your item in my shopping cart</h5>`;
+    var i = 1;
+    for (var item in cart) {
+      console.log(item, "helo")
+      popStr = popStr + "<b>" + i + "</b>. ";
+      popStr = popStr + document.getElementById('name' + item).innerHTML.slice(0, 19) +
+        "Qty : " + cart[item][0] + "<br>";
+      i += 1;
+    }
+    popStr = popStr + `<a href='/shop/checkout'><button class = btn btn-primary
+      id = 'checkout'>Checkout</button></a> <button class = btn btn-primary
+      id = 'clearCart' onclick='clearCart()'>Clear Cart</button>`
+    document.getElementById('popcart').setAttribute('data-content', popStr)
+    $('#popcart').popover('show');
+  }
+
+  function clearCart() {
+    cart = JSON.parse(localStorage.getItem('cart'));
+    for (var item in cart) {
+      document.getElementById('div' + item).innerHTML = `<span id="${item}" class="divpr">
+                  <button href="#" id="pr{{i.id}}" class="btn btn-primary cart">Add to cart</button>
+                </span>`;
+    }
+    localStorage.clear();
+    cart = {};
+    updateCart(cart);
+  }
+
+  function updateCart(cart) {
+    var sum = 0;
+    for (var item in cart) {
+      sum = sum + cart[item][0];
+      document.getElementById('div' + item).innerHTML = `<button id = 'minus${item}' class = 'btn btn-primary minus'>-</button>
+      <span id = 'val${item}'> ${cart[item][0]} </span><button id = 'plus${item}' class = 'btn btn-primary plus'>+</button>`
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    //document.getElementById('cart').innerHTML = Object.keys(cart).length;
+    document.getElementById('cart').innerHTML = sum;
+    updatePopover(cart);
+  }
+
+  //if plus or minus button is clicked, change the cart as well as display value
+  $('.divpr').on("click", "button.minus", function () {
+    console.log("minus clicked")
+    a = this.id.slice(5);
+    cart[a][0] -= 1;
+    cart[a][0] = Math.max(0, cart[a][0]);
+    //document.getElementById('val' + a).innerHTML = cart[a][0];
+
+    if(cart[a][0] == 0){
+      document.getElementById('div' + a).innerHTML = `<button id = ${a} class = "btn btn-primary cart">Add to cart</button>`;
+      delete cart[a];
+    }else{
+      document.getElementById('val' + a).innerHTML = cart[a][0];
+    }
+    updateCart(cart);
+
+  })
+  $('.divpr').on("click", "button.plus", function () {
+    console.log("plus clicked")
+    a = this.id.slice(4);
+    cart[a][0] += 1;
+    document.getElementById('val' + a).innerHTML = cart[a][0];
+    updateCart(cart);
+  })
+
+</script>
+{% endblock %}

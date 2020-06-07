@@ -1,0 +1,44 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Contact{% endblock %}
+{% block css %}
+body{
+<!-- background-color: red; -->
+}
+{% endblock %}
+{% block body %}
+<div class="container my-3">
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Contact Us</h3>
+            <form action="/shop/contact/" method="POST">{% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" name="name" placeholder="Enter your name" />
+                </div>
+                <div class="form-group">
+                    <label for="name">Email</label>
+                    <input type="email" class="form-control" name="email" placeholder="Enter your Email" />
+                </div>
+                <div class="form-group">
+                    <label for="name">Phone</label>
+                    <input type="tel" class="form-control" name="phone" placeholder="Enter your Phone" />
+                </div>
+                <div class="form-group">
+                    <label for="name">How may we help you?</label>
+                    <textarea type="text" class="form-control" name="desc" rows="3"
+                        placeholder="Enter your Queries"></textarea>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-success" type="Submit">Submit</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <h3>Email : kdit13@gmail.com</h3>
+        </div>
+    </div>
+    <div align="center">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4130.206827683356!2d76.62165895716738!3d12.289090149867343!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3baf654b752c4a19%3A0xa09815e64ce7c3b5!2sMarlabs%20Innovations%20(P)%20Ltd!5e0!3m2!1sen!2sin!4v1587279877971!5m2!1sen!2sin" width="600" height="450" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+    </div>
+</div>
+{% endblock %}
